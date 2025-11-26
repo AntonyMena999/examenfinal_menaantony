@@ -25,6 +25,9 @@ jobs:
         run: |
           pip install flask pytest ruff
 
+      - name: Add project to PYTHONPATH
+        run: echo "PYTHONPATH=$PWD" >> $GITHUB_ENV
+
       - name: Ruff Lint
         run: ruff check .
 
@@ -52,48 +55,3 @@ jobs:
           push: true
           tags: |
             ghcr.io/antonymena999/tituana:1.0.5
-
-     # - name: Debug info
-     #   run: |
-     #     echo "Host: ${{ secrets.VPS_HOST }}"
-     #     echo "Usuario: ${{ secrets.VPS_USER }}"
-     #     echo "Puerto: ${{ secrets.VPS_SSH_PORT }}"
-
-      # - name: Test SSH connection
-      #   uses: appleboy/ssh-action@v1.0.0
-      #   with:
-      #     host: ${{ secrets.VPS_HOST }}
-      #     username: ${{ secrets.VPS_USER }}
-      #     password: ${{ secrets.VPS_PASSWORD }}
-      #     port: ${{ secrets.VPS_SSH_PORT }}
-      #     script: |
-      #       echo "SSH OK"
-      #       hostname
-
-      # - name: Upload stack.yml to VPS
-      #   uses: appleboy/scp-action@v1.0.0
-      #   with:
-      #     host: ${{ secrets.VPS_HOST }}
-      #     username: ${{ secrets.VPS_USER }}
-      #     password: ${{ secrets.VPS_PASSWORD }}
-      #     port: ${{ secrets.VPS_SSH_PORT }}
-      #     source: "stack.yml"
-      #     target: "/home/${{ secrets.VPS_USER }}/deploy"
-
-      # - name: Deploy stack
-      #   uses: appleboy/ssh-action@v1.0.0
-      #   with:
-      #     host: ${{ secrets.VPS_HOST }}
-      #     username: ${{ secrets.VPS_USER }}
-      #     password: ${{ secrets.VPS_PASSWORD }}
-      #     port: ${{ secrets.VPS_SSH_PORT }}
-      #     script: |
-      #       cd ~/deploy
-      #       echo "${{ secrets.GHCR_PAT }}" | docker login ghcr.io -u antonymena999 --password-stdin
-      #       docker pull ghcr.io/antonymena999/tituana:1.0.5
-      #       docker stack rm tituana || true
-      #       sleep 20
-      #       docker stack deploy -c stack.yml --with-registry-auth tituana
-      #       docker service ls
-      #       docker ps
-
