@@ -1,0 +1,26 @@
+version: "3.8"
+
+services:
+  tonyapp2:
+    image: ghcr.io/antonymena999/tituana:1.0.5
+    deploy:
+      replicas: 1
+      labels:
+        - "traefik.enable=true"
+        - "traefik.http.routers.tonyapp2.entrypoints=http"
+        - "traefik.http.routers.tonyapp2.rule=Host(`tonyapp2.byronrm.com`)"
+        - "traefik.http.middlewares.tonyapp2-https-redirect.redirectscheme.scheme=https"
+        - "traefik.http.routers.tonyapp2.middlewares=tonyapp2-https-redirect"
+        - "traefik.http.routers.tonyapp2-secure.entrypoints=https"
+        - "traefik.http.routers.tonyapp2-secure.rule=Host(`tonyapp2.byronrm.com`)"
+        - "traefik.http.routers.tonyapp2-secure.tls=true"
+        - "traefik.http.routers.tonyapp2-secure.tls.certresolver=http"
+        - "traefik.http.routers.tonyapp2-secure.service=tonyapp2"
+        - "traefik.http.services.tonyapp2.loadbalancer.server.port=5000"
+        - "traefik.docker.network=traefik-public"
+    networks:
+      - traefik-public
+
+networks:
+  traefik-public:
+    external: true

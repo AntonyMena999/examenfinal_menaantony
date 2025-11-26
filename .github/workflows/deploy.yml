@@ -1,0 +1,99 @@
+name: Build, Test and Deploy
+
+on:
+  push:
+    branches: [ tituana ]
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  build-test-push:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          pip install flask pytest ruff
+
+      - name: Ruff Lint
+        run: ruff check .
+
+      - name: Run Pytest
+        run: pytest -q
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and Push Docker image
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          file: ./Dockerfile
+          push: true
+          tags: |
+            ghcr.io/antonymena999/tituana:1.0.5
+
+     # - name: Debug info
+     #   run: |
+     #     echo "Host: ${{ secrets.VPS_HOST }}"
+     #     echo "Usuario: ${{ secrets.VPS_USER }}"
+     #     echo "Puerto: ${{ secrets.VPS_SSH_PORT }}"
+
+      # - name: Test SSH connection
+      #   uses: appleboy/ssh-action@v1.0.0
+      #   with:
+      #     host: ${{ secrets.VPS_HOST }}
+      #     username: ${{ secrets.VPS_USER }}
+      #     password: ${{ secrets.VPS_PASSWORD }}
+      #     port: ${{ secrets.VPS_SSH_PORT }}
+      #     script: |
+      #       echo "SSH OK"
+      #       hostname
+
+      # - name: Upload stack.yml to VPS
+      #   uses: appleboy/scp-action@v1.0.0
+      #   with:
+      #     host: ${{ secrets.VPS_HOST }}
+      #     username: ${{ secrets.VPS_USER }}
+      #     password: ${{ secrets.VPS_PASSWORD }}
+      #     port: ${{ secrets.VPS_SSH_PORT }}
+      #     source: "stack.yml"
+      #     target: "/home/${{ secrets.VPS_USER }}/deploy"
+
+      # - name: Deploy stack
+      #   uses: appleboy/ssh-action@v1.0.0
+      #   with:
+      #     host: ${{ secrets.VPS_HOST }}
+      #     username: ${{ secrets.VPS_USER }}
+      #     password: ${{ secrets.VPS_PASSWORD }}
+      #     port: ${{ secrets.VPS_SSH_PORT }}
+      #     script: |
+      #       cd ~/deploy
+      #       echo "${{ secrets.GHCR_PAT }}" | docker login ghcr.io -u antonymena999 --password-stdin
+      #       docker pull ghcr.io/antonymena999/tituana:1.0.5
+      #       docker stack rm tituana || true
+      #       sleep 20
+      #       docker stack deploy -c stack.yml --with-registry-auth tituana
+      #       docker service ls
+      #       docker ps
+
