@@ -84,7 +84,7 @@ def home():
     </head>
     <body>
         <h1>✨ Bienvenido a mi página Flask ✨</h1>
-        <p>Esta es una página moderna y elegante creada completamente dentro de Flask.</p>
+        <p>Esta es una página moderna de Exámen y elegante creada completamente dentro de Flask.</p>
         <button onclick="alert('¡Gracias por visitar! 😊')">Haz clic aquí</button>
     </body>
     </html>
